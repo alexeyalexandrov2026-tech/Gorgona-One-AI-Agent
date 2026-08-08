@@ -18,6 +18,16 @@ class LLMProvider:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("GEMINI_API_KEY")
         self.ollama_url = ollama_url
         self.model_name = model_name
+        
+        if not self.model_name or self.model_name == "gorgona-smart":
+            if self.provider == "openai":
+                self.model_name = "gpt-4o"
+            elif self.provider == "openrouter":
+                self.model_name = "anthropic/claude-3.5-sonnet"
+            elif self.provider == "ollama":
+                self.model_name = "llama3"
+            elif self.provider == "gemini":
+                self.model_name = "gemini-1.5-pro"
 
     async def generate_response(self, system_prompt: str, user_prompt: str, tools_schema: Optional[List[Dict]] = None) -> Dict[str, Any]:
         if self.provider == "ollama":
@@ -88,7 +98,7 @@ class LLMProvider:
             return {"content": "Error: Gemini API Key is missing", "success": False}
         async with httpx.AsyncClient(timeout=60.0) as client:
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={self.api_key}"
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name or 'gemini-1.5-pro'}:generateContent?key={self.api_key}"
                 
                 payload = {
                     "systemInstruction": {"parts": [{"text": system_prompt}]},
