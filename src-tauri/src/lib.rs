@@ -15,9 +15,10 @@ pub fn run() {
       }
       
       let sidecar_command = app.shell().sidecar("backend").expect("failed to setup sidecar");
-      let (mut rx, _child) = sidecar_command.spawn().expect("failed to spawn sidecar");
+      let (mut rx, child) = sidecar_command.spawn().expect("failed to spawn sidecar");
 
       tauri::async_runtime::spawn(async move {
+          let _child = child;
           while let Some(event) = rx.recv().await {
               if let CommandEvent::Stdout(line) = event {
                   println!("backend: {}", String::from_utf8_lossy(&line));
