@@ -405,6 +405,7 @@ function saveSettings() {
     localStorage.setItem("key_gemini", document.getElementById("input-gemini-key").value);
     localStorage.setItem("key_openai", document.getElementById("input-openai-key").value);
     localStorage.setItem("key_openrouter", document.getElementById("input-openrouter-key").value);
+    localStorage.setItem("key_ollama", document.getElementById("input-ollama-key").value);
     localStorage.setItem("ollama_url", document.getElementById("input-ollama-url").value);
 
     document.getElementById("modal-settings").classList.add("hidden");
@@ -415,11 +416,13 @@ function loadSettings() {
     const geminiKey = localStorage.getItem("key_gemini");
     const openaiKey = localStorage.getItem("key_openai");
     const openrouterKey = localStorage.getItem("key_openrouter");
+    const ollamaKey = localStorage.getItem("key_ollama");
     const ollamaUrl = localStorage.getItem("ollama_url");
 
     if (geminiKey) document.getElementById("input-gemini-key").value = geminiKey;
     if (openaiKey) document.getElementById("input-openai-key").value = openaiKey;
     if (openrouterKey) document.getElementById("input-openrouter-key").value = openrouterKey;
+    if (ollamaKey) document.getElementById("input-ollama-key").value = ollamaKey;
     if (ollamaUrl) document.getElementById("input-ollama-url").value = ollamaUrl;
 }
 

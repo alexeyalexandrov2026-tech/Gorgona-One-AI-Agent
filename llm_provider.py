@@ -43,10 +43,16 @@ class LLMProvider:
             return self._call_smart_engine(user_prompt)
 
     async def _call_ollama(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+        headers = {}
+        api_key = self.api_key or os.getenv("OLLAMA_API_KEY")
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+
         async with httpx.AsyncClient(timeout=60.0) as client:
             try:
                 res = await client.post(
-                    f"{self.ollama_url}/api/generate",
+                    f"{self.ollama_url.rstrip('/')}/api/generate",
+                    headers=headers,
                     json={
                         "model": self.model_name or "llama3",
                         "prompt": f"{system_prompt}\n\nUser: {user_prompt}\n\nAssistant:",
@@ -56,7 +62,7 @@ class LLMProvider:
                 if res.status_code == 200:
                     data = res.json()
                     return {"content": data.get("response", ""), "success": True}
-                return {"content": f"Ollama error: {res.status_code}", "success": False}
+                return {"content": f"Ollama error: {res.status_code} - {res.text}", "success": False}
             except Exception as e:
                 return {"content": f"Failed to connect to Ollama at {self.ollama_url}: {str(e)}", "success": False}
 
