@@ -64,6 +64,16 @@ def save_file(req: SaveFileRequest):
     res = tools.write_file(req.path, req.content)
     return res
 
+@app.post("/api/open_workspace")
+def open_workspace(project_id: str = "default"):
+    tools = WorkspaceTools(project_id=project_id)
+    if sys.platform == "win32":
+        try:
+            os.startfile(tools.project_dir)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    return {"success": True, "path": tools.project_dir}
+
 @app.websocket("/ws/agent")
 async def websocket_agent(websocket: WebSocket):
     await websocket.accept()
@@ -100,13 +110,28 @@ else:
 os.makedirs(static_dir, exist_ok=True)
 app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
+def free_port(port=8000):
+    if sys.platform == "win32":
+        try:
+            import subprocess
+            output = subprocess.check_output(f"netstat -ano | findstr :{port}", shell=True).decode()
+            current_pid = os.getpid()
+            for line in output.strip().splitlines():
+                parts = line.split()
+                if len(parts) >= 5 and "LISTENING" in parts:
+                    pid = int(parts[-1])
+                    if pid != current_pid and pid > 0:
+                        subprocess.call(f"taskkill /F /PID {pid}", shell=True)
+        except Exception:
+            pass
+
 def open_browser():
     time.sleep(1.5)
     webbrowser.open("http://localhost:8000")
 
 if __name__ == "__main__":
     import uvicorn
-    # Only open system browser if running in dev mode
+    free_port(8000)
     if not getattr(sys, 'frozen', False):
         threading.Thread(target=open_browser, daemon=True).start()
     uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)
