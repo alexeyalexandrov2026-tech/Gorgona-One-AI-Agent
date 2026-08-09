@@ -21,8 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================= */
 
 function initWebSocket() {
+    let wsHost = window.location.host;
+    if (!wsHost || wsHost.includes("tauri") || !wsHost.includes("8000")) {
+        wsHost = "localhost:8000";
+    }
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws/agent`;
+    const wsUrl = `${protocol}//${wsHost}/ws/agent`;
 
     ws = new WebSocket(wsUrl);
 
