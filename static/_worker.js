@@ -15,7 +15,7 @@ export default {
         
         // В онлайн-версии Gorgona-One перенаправляем все запросы на бесплатную сеть (Pollinations AI)
         // Так как на Cloudflare мы не можем запускать Python-код для управления файлами пользователя.
-        const response = await fetch("https://text.pollinations.ai/openai/v1/chat/completions", {
+        const response = await fetch("https://text.pollinations.ai/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -28,14 +28,12 @@ export default {
                         "content": "You are Gorgona-One AI, an elite autonomous AI Agent. You are running in Online Web Mode. You can answer questions, generate code snippets, and help the user. Note: you cannot execute terminal commands or write local files directly to the user's hard drive because you are running in the browser/Cloudflare."
                     },
                     {"role": "user", "content": prompt}
-                ],
-                jsonMode: false
+                ]
             })
         });
 
         if (response.ok) {
-            const data = await response.json();
-            const text = data.choices[0].message.content;
+            const text = await response.text();
             
             // Возвращаем в том формате, который ожидает handleAgentStep() в app.js
             return new Response(JSON.stringify({

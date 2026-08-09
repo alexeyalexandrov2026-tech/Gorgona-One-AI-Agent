@@ -49,21 +49,19 @@ class LLMProvider:
         async with httpx.AsyncClient(timeout=60.0) as client:
             try:
                 res = await client.post(
-                    "https://text.pollinations.ai/openai/v1/chat/completions",
+                    "https://text.pollinations.ai/",
                     json={
                         "model": "openai",
                         "messages": [
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
-                        ],
-                        "jsonMode": False
+                        ]
                     }
                 )
                 if res.status_code == 200:
-                    data = res.json()
-                    message = data["choices"][0]["message"]
+                    text = res.text
                     return {
-                        "content": message.get("content") or "",
+                        "content": text,
                         "success": True
                     }
                 return {"content": f"Free API error: {res.text}", "success": False}
