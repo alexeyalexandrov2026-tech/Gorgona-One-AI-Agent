@@ -48,13 +48,27 @@ class LLMProvider:
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=180.0) as client:
             try:
+                target_model = self.model_name
+                if not target_model or target_model in ["gorgona-smart", "llama3"]:
+                    try:
+                        tags_res = await client.get(f"{self.ollama_url.rstrip('/')}/api/tags", headers=headers, timeout=5.0)
+                        if tags_res.status_code == 200:
+                            models_data = tags_res.json().get("models", [])
+                            if models_data:
+                                target_model = models_data[0]["name"]
+                    except Exception:
+                        pass
+                
+                if not target_model or target_model == "gorgona-smart":
+                    target_model = "llama3.2:1b"
+
                 res = await client.post(
                     f"{self.ollama_url.rstrip('/')}/api/generate",
                     headers=headers,
                     json={
-                        "model": self.model_name or "llama3",
+                        "model": target_model,
                         "prompt": f"{system_prompt}\n\nUser: {user_prompt}\n\nAssistant:",
                         "stream": False
                     }
