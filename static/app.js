@@ -22,6 +22,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initWebSocket() {
     let wsHost = window.location.host;
+    const isCloudflare = wsHost.includes("workers.dev") || wsHost.includes("pages.dev") || wsHost.includes("gorgona-one");
+    
+    // Cloudflare Online Demo Mode doesn't use WebSockets
+    if (isCloudflare) {
+        console.log("⚡ Gorgona-One Online Mode (Cloudflare) Activated");
+        updateStatus("Онлайн режим (Cloudflare)");
+        return;
+    }
+
     if (!wsHost || wsHost.includes("tauri") || !wsHost.includes("8000")) {
         wsHost = "localhost:8000";
     }
@@ -218,7 +227,27 @@ function sendPrompt() {
         ollama_url: localStorage.getItem("ollama_url") || "http://localhost:11434"
     };
 
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    const wsHost = window.location.host;
+    const isCloudflare = wsHost.includes("workers.dev") || wsHost.includes("pages.dev") || wsHost.includes("gorgona-one");
+
+    if (isCloudflare) {
+        updateStatus("Обработка запроса (Online API)...");
+        showTypingIndicator();
+        
+        // Use Cloudflare worker endpoint
+        fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            handleAgentStep(data);
+        })
+        .catch(err => {
+            showError("Ошибка подключения к онлайн-версии Gorgona-One.");
+        });
+    } else if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(payload));
         updateStatus("Обработка запроса...");
         showTypingIndicator();

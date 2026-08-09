@@ -121,13 +121,16 @@
       </div>
 
       <div class="header-actions">
-        <select id="model-select" class="model-select">
-          <option value="smart">Smart Engine</option>
-          <option value="gemini">Gemini Pro</option>
-          <option value="openai">OpenAI GPT-4o</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="ollama">Ollama (Local)</option>
-        </select>
+        <div class="model-selector">
+          <select id="model-select" class="cyber-select">
+            <option value="smart">Gorgona Smart Engine</option>
+            <option value="ollama">Локальная (Ollama)</option>
+            <option value="gemini">Gemini Pro</option>
+            <option value="openai">ChatGPT-4o</option>
+            <option value="openrouter">Claude 3.5 (OpenRouter)</option>
+            <option value="free">Free AI (Без ключей)</option>
+          </select>
+        </div>
 
         <select id="theme-select" class="model-select" title="Тема">
           <option value="default">Default</option>
@@ -280,6 +283,10 @@
         <label class="modal-label">
           Ollama URL
           <input type="text" id="input-ollama-url" class="modal-input" placeholder="http://localhost:11434 или https://ollama.com" />
+        </label>
+        <label class="modal-label">
+          Free AI (No-Cost)
+          <input type="text" class="modal-input" value="Ключи не требуются (Pollinations AI, G4F)" disabled />
         </label>
       </div>
 

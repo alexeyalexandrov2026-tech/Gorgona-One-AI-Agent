@@ -38,9 +38,37 @@ class LLMProvider:
             return await self._call_gemini(system_prompt, user_prompt)
         elif self.provider == "openrouter":
             return await self._call_openrouter(system_prompt, user_prompt, tools_schema)
+        elif self.provider == "free":
+            return await self._call_free_api(system_prompt, user_prompt)
         else:
             # Smart Autonomous Fallback Engine
             return self._call_smart_engine(user_prompt)
+
+    async def _call_free_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+        """Вызов бесплатных API (Pollinations.ai) без ключей"""
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            try:
+                res = await client.post(
+                    "https://text.pollinations.ai/openai/v1/chat/completions",
+                    json={
+                        "model": "openai",
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        "jsonMode": False
+                    }
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    message = data["choices"][0]["message"]
+                    return {
+                        "content": message.get("content") or "",
+                        "success": True
+                    }
+                return {"content": f"Free API error: {res.text}", "success": False}
+            except Exception as e:
+                return {"content": f"Free API Request failed: {str(e)}", "success": False}
 
     async def _call_ollama(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
         headers = {}
