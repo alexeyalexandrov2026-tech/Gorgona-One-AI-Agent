@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gorgona-one-ai-agent",
+  "main": "static/_worker.js",
+  "compatibility_date": "2026-08-08",
+  "assets": {
+    "directory": "./static",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
